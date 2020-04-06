@@ -119,6 +119,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "eb-frontend"
+    }
+  },
+  "defaultProject": "eb-frontend",
+  "cli": {
+    "analytics": false
+  }
 }
