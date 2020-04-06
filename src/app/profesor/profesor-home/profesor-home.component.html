@@ -1,1 +1,21 @@
-<p>profesor-home works!</p>
+<div class="container">
+    <h1>Listado de Profesores</h1>
+    <table datatable class="row-border hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let profesor of profesores;">
+        <th scope="row">{{profesor.id}}</th>
+        <td>{{profesor.nombre}}</td>
+        <td>{{profesor.correo}}</td>
+        <td>Borrar</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
