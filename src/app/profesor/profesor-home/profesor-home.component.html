@@ -1,12 +1,22 @@
-<div class="container col-sm-10">
+<div class="container col-sm-8">
+    
     <h1>Listado de Profesores</h1>
+    <div class="d-flex justify-content-center">
+
+      <button type="button" class="btn btn-success" (click)="open(crear,0)">
+        <fa-icon [icon]="faPlus"></fa-icon>
+         Agregar Profesor
+      </button>
+
+    </div>
+    
     <table id="tabla_profesor" class="row-border hover">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Acciones</th>
+        <th class="w-5">#</th>
+        <th class="w-50">Nombre</th>
+        <th class="w-40">Correo</th>
+        <th class="w-5">Acciones</th>
       </tr>
     </thead>
     <tbody>
@@ -15,15 +25,15 @@
         <td>{{profesor.nombre}}</td>
         <td>{{profesor.correo}}</td>
         <td> 
-          <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+          <div class="d-flex justify-content-center btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group mr-2" role="group" aria-label="First group">
-              <button type="button" class="btn btn-secondary" (click)="open(editar,profesor.id)">
+              <button type="button" class="btn btn-info" (click)="open(editar,profesor.id)">
                 <fa-icon [icon]="faEdit"></fa-icon>
                  Editar
               </button>
             </div>
             <div class="btn-group mr-2" role="group" aria-label="Second group">
-              <button type="button" class="btn btn-secondary" (click)="open(borrar,profesor.id)">
+              <button type="button" class="btn btn-danger" (click)="open(borrar,profesor.id)">
                 <fa-icon [icon]="faTimes"></fa-icon>
                 Borrar
               </button>
@@ -34,6 +44,58 @@
     </tbody>
   </table>
 </div>
+
+<ng-template #crear let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">CREAR PROFESOR</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="correoError" (close)="correoError = false">
+        <strong>Error!</strong> Correo ingresado existe y/o tiene un formato invalido, favor revisar.
+      </ngb-alert>
+    </p>
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <form [formGroup]="profesorNewForm" (ngSubmit)="save(profesorNewForm.value)">
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label for="nombre">Nombre:</label>
+          <input [class.is-invalid] = "getNewNombre.invalid && getNewNombre.touched"
+            class="form-control" formControlName="nombre"/>
+            
+          <div *ngIf="(getNewNombre.invalid && getNewNombre.touched) || getNewNombre.dirty">
+            <small *ngIf="getNewNombre.errors?.required" class="text-danger">Nombre es requerido</small>
+          </div>
+        </div>
+        <div class="form-group col-md-12">
+          <label for="correo">Correo:</label>
+          <input [class.is-invalid] = "getNewCorreo.invalid && getNewCorreo.touched"
+            class="form-control" formControlName="correo"/>
+          <small>(Ejemplo: usuario@correo.com)</small>
+
+          <div *ngIf="(getNewCorreo.invalid && getNewCorreo.touched) || getNewCorreo.dirty">
+            <small *ngIf="getNewCorreo.errors?.required" class="text-danger">Correo es requerido</small>
+            <small *ngIf="getNewCorreo.errors?.pattern" class="text-danger">Favor ingrese un correo valido</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-outline-primary"  [disabled]="(profesorNewForm.invalid)">Guardar</button>
+      </div>
+    </form>
+  </div>
+</ng-template>
 
 <ng-template #editar let-c="close" let-d="dismiss">
   <div class="modal-header">
@@ -56,32 +118,33 @@
       </ngb-alert>
     </p>
 
-    <form [formGroup]="profesorForm" (ngSubmit)="update(profesorForm.value,profesor.id)">
+    <form [formGroup]="profesorEditForm" (ngSubmit)="update(profesorEditForm.value,profesor.id)">
       <div class="form-row">
         <div class="form-group col-md-12">
           <label for="nombre">Nombre:</label>
-          <input [class.is-invalid] = "getNombre.invalid && getNombre.touched"
+          <input [class.is-invalid] = "getEditNombre.invalid && getEditNombre.touched"
             class="form-control" formControlName="nombre" [ngModel]="profesor.nombre"/>
             
-          <div *ngIf="(getNombre.invalid && getNombre.touched) || getNombre.dirty">
-            <small *ngIf="getNombre.errors?.required" class="text-danger">Nombre es requerido</small>
+          <div *ngIf="(getEditNombre.invalid && getEditNombre.touched) || getEditNombre.dirty">
+            <small *ngIf="getEditNombre.errors?.required" class="text-danger">Correo es requerido</small>
+            <small *ngIf="getEditNombre.errors?.pattern" class="text-danger">Favor ingrese un correo valido</small>
           </div>
         </div>
         <div class="form-group col-md-12">
           <label for="correo">Correo:</label>
-          <input [class.is-invalid] = "getCorreo.invalid && getCorreo.touched"
+          <input [class.is-invalid] = "getEditCorreo.invalid && getEditCorreo.touched"
             class="form-control" formControlName="correo" [ngModel]="profesor.correo"/>
           <small>(Ejemplo: usuario@correo.com)</small>
 
-          <div *ngIf="(getCorreo.invalid && getCorreo.touched) || getCorreo.dirty">
-            <small *ngIf="getCorreo.errors?.required" class="text-danger">Nombre es requerido</small>
-            <small *ngIf="getCorreo.errors?.pattern" class="text-danger">Favor ingrese un correo valido</small>
+          <div *ngIf="(getEditCorreo.invalid && getEditCorreo.touched) || getEditCorreo.dirty">
+            <small *ngIf="getEditCorreo.errors?.required" class="text-danger">Nombre es requerido</small>
+            <small *ngIf="getEditCorreo.errors?.pattern" class="text-danger">Favor ingrese un correo valido</small>
           </div>
         </div>
       </div>
       
       <div class="modal-footer">
-        <button type="submit" class="btn btn-outline-primary"  [disabled]="(profesorForm.invalid)">Guardar</button>
+        <button type="submit" class="btn btn-outline-primary"  [disabled]="(profesorEditForm.invalid)">Guardar</button>
       </div>
     </form>
   </div>
@@ -108,4 +171,3 @@
     <button type="button" class="btn btn-outline-primary" (click)="deleteProf(profesor.id)">Aceptar</button>
   </div>
 </ng-template>
-  

@@ -15,8 +15,13 @@ import { ProfesorHomeComponent } from './profesor/profesor-home/profesor-home.co
 import { AlumnoHomeComponent } from './alumno/alumno-home/alumno-home.component';
 import { CursoHomeComponent } from './curso/curso-home/curso-home.component';
 import { PruebaHomeComponent } from './prueba/prueba-home/prueba-home.component';
+import { CursoInscritoHomeComponent } from './curso-inscrito/curso-inscrito-home/curso-inscrito-home.component';
 
 import { ProfesorService } from './services/profesor/profesor.service';
+import { AlumnoService } from './services/alumno/alumno.service';
+import { CursoService } from './services/curso/curso.service';
+import { CursoInscritoService } from './services/curso-inscrito/curso-inscrito.service';
+import { PruebaService } from './services/prueba/prueba.service';
 
 import{ environment } from '../environments/environment';
 
@@ -29,7 +34,8 @@ import{ environment } from '../environments/environment';
     ProfesorHomeComponent,
     AlumnoHomeComponent,
     CursoHomeComponent,
-    PruebaHomeComponent
+    PruebaHomeComponent,
+    CursoInscritoHomeComponent
   ],
   imports: [
     BrowserModule,
@@ -42,6 +48,10 @@ import{ environment } from '../environments/environment';
   ],
   providers: [
     ProfesorService,
+    AlumnoService,
+    CursoService,
+    CursoInscritoService,
+    PruebaService,
     {provide: 'BACKEND_API_URL', useValue: environment.backendApiUrl},
   ],
   bootstrap: [AppComponent]

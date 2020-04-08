@@ -1,1 +1,215 @@
-<p>curso-home works!</p>
+<div class="container col-sm-8">
+    
+    <h1>Listado de Cursos</h1>
+    <div class="d-flex justify-content-center">
+
+      <button type="button" class="btn btn-success" (click)="open(crear,0)">
+        <fa-icon [icon]="faPlus"></fa-icon>
+         Agregar Curso
+      </button>
+
+    </div>
+    
+    <table id="tabla_cursos" class="row-border hover">
+    <thead>
+      <tr>
+        <th class="w-5">#</th>
+        <th class="w-40">Nombre</th>
+        <th class="w-40">Descripción</th>
+        <th class="w-10">Semestre</th>
+        <th class="w-50">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let curso of cursos;">
+        <th scope="row">{{curso.id}}</th>
+        <td>{{curso.nombre}}</td>
+        <td>{{curso.descripcion}}</td>
+        <td>{{curso.semestre}}</td>
+        <td> 
+          <div class="d-flex justify-content-center btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+              <button type="button" class="btn btn-info" [routerLink]="['/cursoInscritos', curso.id]">
+                <fa-icon [icon]="faEye"></fa-icon>
+                 Ver Inscritos
+              </button>
+            </div>
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+              <button type="button" class="btn btn-info" (click)="open(editar,curso.id)">
+                <fa-icon [icon]="faEdit"></fa-icon>
+                 Editar
+              </button>
+            </div>
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+              <button type="button" class="btn btn-danger" (click)="open(borrar,curso.id)">
+                <fa-icon [icon]="faTimes"></fa-icon>
+                Borrar
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<ng-template #crear let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">CREAR CURSO</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="semestreError" (close)="semestreError = false">
+        <strong>Error!</strong> Semestre tiene un formato invalido, favor revisar.
+      </ngb-alert>
+    </p>
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <form [formGroup]="cursoNewForm" (ngSubmit)="save(cursoNewForm.value)">
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label for="nombre">Nombre:</label>
+          <input [class.is-invalid] = "getNewNombre.invalid && getNewNombre.touched"
+            class="form-control" formControlName="nombre"/>
+            
+          <div *ngIf="(getNewNombre.invalid && getNewNombre.touched) || getNewNombre.dirty">
+            <small *ngIf="getNewNombre.errors?.required" class="text-danger">Nombre es requerido</small>
+          </div>
+        </div>
+        <div class="form-group col-md-12">
+            <label for="descripcion">Descripción:</label>
+            <input [class.is-invalid] = "getNewDescripcion.invalid && getNewDescripcion.touched"
+              class="form-control" formControlName="descripcion"/>
+              
+            <div *ngIf="(getNewDescripcion.invalid && getNewDescripcion.touched) || getNewDescripcion.dirty">
+              <small *ngIf="getNewDescripcion.errors?.required" class="text-danger">Descripción es requerido</small>
+            </div>
+          </div>
+        <div class="form-group col-md-12">
+          <label for="correo">Semestre:</label>
+          <input [class.is-invalid] = "getNewSemestre.invalid && getNewSemestre.touched"
+            class="form-control" formControlName="semestre"/>
+          <small>(Ejemplo: 2020-1)</small>
+
+          <div *ngIf="(getNewSemestre.invalid && getNewSemestre.touched) || getNewSemestre.dirty">
+            <small *ngIf="getNewSemestre.errors?.required" class="text-danger">Semestre es requerido</small>
+            <small *ngIf="getNewSemestre.errors?.pattern" class="text-danger">Favor ingrese un semestre valido</small>
+          </div>
+
+        </div>
+        <div class="form-group col-md-6">
+            <label for="profesorId">Profesor:</label>
+            <select class="form-control" name="profesorId" formControlName="profesorId">
+             <option [ngValue]="null" disabled>Elige un Profesor</option>
+             <option [ngValue]="profesor.id" *ngFor="let profesor of profesores">{{profesor.nombre}}</option>
+            </select>
+        </div>
+
+      </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-outline-primary"  [disabled]="(cursoNewForm.invalid)">Guardar</button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #editar let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">EDITAR CURSO</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="semestreError" (close)="semestreError = false">
+        <strong>Error!</strong> Semestre tiene un formato invalido, favor revisar.
+      </ngb-alert>
+    </p>
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <form [formGroup]="cursoEditForm" (ngSubmit)="update(cursoEditForm.value,curso.id)">
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="nombre">Nombre:</label>
+            <input [class.is-invalid] = "getEditNombre.invalid && getEditNombre.touched"
+              class="form-control" formControlName="nombre" [ngModel]="curso.nombre"/>
+              
+            <div *ngIf="(getEditNombre.invalid && getEditNombre.touched) || getEditNombre.dirty">
+              <small *ngIf="getEditNombre.errors?.required" class="text-danger">Nombre es requerido</small>
+            </div>
+          </div>
+          <div class="form-group col-md-12">
+              <label for="descripcion">Descripción:</label>
+              <input [class.is-invalid] = "getEditDescripcion.invalid && getEditDescripcion.touched"
+                class="form-control" formControlName="descripcion" [ngModel]="curso.descripcion"/>
+                
+              <div *ngIf="(getEditDescripcion.invalid && getEditDescripcion.touched) || getEditDescripcion.dirty">
+                <small *ngIf="getEditDescripcion.errors?.required" class="text-danger">Descripción es requerido</small>
+              </div>
+            </div>
+          <div class="form-group col-md-12">
+            <label for="correo">Semestre:</label>
+            <input [class.is-invalid] = "getEditSemestre.invalid && getEditSemestre.touched"
+              class="form-control" formControlName="semestre" [ngModel]="curso.semestre"/>
+            <small>(Ejemplo: 2020-1)</small>
+  
+            <div *ngIf="(getEditSemestre.invalid && getEditSemestre.touched) || getEditSemestre.dirty">
+                <small *ngIf="getEditSemestre.errors?.required" class="text-danger">Semestre es requerido</small>
+                <small *ngIf="getEditSemestre.errors?.pattern" class="text-danger">Favor ingrese un semestre valido</small>
+              </div>
+          </div>
+
+          <div class="form-group col-md-6">
+            <label for="profesorId">Profesor:</label>
+            <select class="form-control" name="profesorId" formControlName="profesorId" [ngModel]="curso.profesorId">
+             <option [ngValue]="null" disabled>Elige un Profesor</option>
+             <option [ngValue]="profesor.id" *ngFor="let profesor of profesores">{{profesor.nombre}}</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-outline-primary"  [disabled]="(cursoEditForm.invalid)">Guardar</button>
+        </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #borrar let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">ESTAS SEGURO?</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <p>Esta acción no podra deshacerse.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-primary" (click)="deleteCurso(curso.id)">Aceptar</button>
+  </div>
+</ng-template>

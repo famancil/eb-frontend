@@ -1,28 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { faPlus, faEdit, faTimes, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTimes } from '@fortawesome/free-solid-svg-icons';
 import * as $ from 'jquery';
 import 'datatables.net';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { CursoInscrito } from 'src/app/models/curso-inscrito/curso-inscrito.model';
 import { Curso } from 'src/app/models/curso/curso.model';
 import { Alumno } from 'src/app/models/alumno/alumno.model';
-import { CursoInscrito } from 'src/app/models/curso-inscrito/curso-inscrito.model';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { CursoInscritoService } from 'src/app/services/curso-inscrito/curso-inscrito.service';
 import { CursoService } from 'src/app/services/curso/curso.service';
 import { AlumnoService } from 'src/app/services/alumno/alumno.service';
-import { ActivatedRoute } from '@angular/router';
-import { PruebaService } from 'src/app/services/prueba/prueba.service';
-import { Prueba } from 'src/app/models/prueba/prueba.model';
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
-  selector: 'app-prueba-home',
-  templateUrl: './prueba-home.component.html',
-  styleUrls: ['./prueba-home.component.css']
+  selector: 'app-curso-inscrito-home',
+  templateUrl: './curso-inscrito-home.component.html',
+  styleUrls: ['./curso-inscrito-home.component.css']
 })
-export class PruebaHomeComponent implements OnInit {
+export class CursoInscritoHomeComponent implements OnInit {
 
-  pruebas:Prueba[];
-  prueba:Prueba;
   cursos:Curso[];
   curso:Curso;
   inscritos:Alumno[];
@@ -35,50 +31,45 @@ export class PruebaHomeComponent implements OnInit {
   modalReference: any;
   cursoInscrito: CursoInscrito;
   status: number;
-  pruebaError = false;
+  inscritoError = false;
   serverError = false;
 
-  pruebaNewForm = new FormGroup({    
-    nombre: new FormControl(null,[
-      Validators.required]),
-    nota: new FormControl(null,[
-      Validators.required,
-      Validators.pattern("[0-9]{1,3}")]),
+  cursoInscritoNewForm = new FormGroup({    
     cursoId: new FormControl(null,[
       Validators.required]),
     alumnoId: new FormControl(null,[
       Validators.required])
   });
 
-  pruebaEditForm = new FormGroup({    
-    nombre: new FormControl(null,[
-      Validators.required]),
-    nota: new FormControl(null,[
-      Validators.required]),
+  cursoInscritoEditForm = new FormGroup({    
     cursoId: new FormControl(null,[
       Validators.required]),
     alumnoId: new FormControl(null,[
       Validators.required])
   });
 
-  constructor(private pruebaService : PruebaService, 
+  constructor(private cursoInscritoService : CursoInscritoService, 
     private cursoService : CursoService,
     private alumnoService : AlumnoService,
     private route : ActivatedRoute,
     private modalService: NgbModal) {}
 
   async ngOnInit() {
-    await this.getPruebas();
+
+    let cursoId = this.route.snapshot.paramMap.get("cursoId");
+    await this.getCursoInscrito(cursoId);
+    await this.getCurso(cursoId);
     await this.getCursos();
+    await this.getInscritos();
     await this.getAlumnos();
   }
 
-  async getPruebas(){
-    let result = await this.pruebaService.getPruebas();
-    this.pruebas = result['pruebas'];
+  async getCursoInscrito(cursoId: string){
+    let result = await this.cursoInscritoService.getCursoInscritoByCurso(cursoId);
+    this.cursoInscrito = result['cursoInscrito'];
 
     $(function(){
-      $('#tabla_pruebas').DataTable({
+      $('#tabla_inscritos').DataTable({
         responsive: true,
         language: {
           processing: "Procesando...",
@@ -107,72 +98,80 @@ export class PruebaHomeComponent implements OnInit {
     this.cursos = result['cursos'];  
   }
 
+  async getCurso(id:string){
+    let result = await this.cursoService.getCurso(id);
+    this.curso = result['curso'];  
+  }
+
+  async getInscritos(){
+    this.inscritos = this.curso['inscritos'];  
+    console.log(this.inscritos)
+  }
+
   async getAlumnos(){
     let result = await this.alumnoService.getAlumnos();
     this.alumnos = result['alumnos'];  
   }
 
-  open(content,id) {
-    if(id>0) this.prueba = this.pruebas.find(element => element.id === id);
+  async open(content,cursoId,alumnoId) {
+    console.log(alumnoId)
+    if(cursoId>0 && alumnoId>0){
+      let result = await this.cursoInscritoService.getCursoInscritoByCursoAndAlumno(cursoId,alumnoId);
+      this.cursoInscrito =  result['cursoInscrito'];  
+    } 
     this.modalReference = this.modalService.open(content);
   }
 
   close(){
-    this.pruebaError = false;
+    this.inscritoError = false;
     this.serverError = false;
     this.modalReference.close();
   }
 
-  get getNewNombre(){
-    return this.pruebaNewForm.get('nombre')
-  }
-
-  get getNewNota(){
-    return this.pruebaNewForm.get('nota')
-  }
-
-  get getEditNombre(){
-    return this.pruebaEditForm.get('nombre')
-  }
-
-  get getEditNota(){
-    return this.pruebaEditForm.get('nota')
-  }
-
-  async save(pruebaData){
+  async save(cursoInscritoData){
+    /*let _cursoData = {}
+    if(cursoData.descripcion === "") _alumnoData['nombre'] = alumnoData.nombre;
+    else _alumnoData = alumnoData;*/
     try {
-      await this.pruebaService.save(pruebaData);
+      await this.cursoInscritoService.save(cursoInscritoData);
       window.location.reload();
     } catch (error) {
       let status = error.status;
       if(status === 422 || status === 400)
-        this.pruebaError = true;
+        this.inscritoError = true;
       if(status === 500)
         this.serverError = true;
+      console.log(error);
     }    
   }
 
-  async update(pruebaData,id){
+  async update(cursoInscritoData,cursoId,alumnoId){
     try {
-      await this.pruebaService.update(pruebaData,id);
+      let result = await this.cursoInscritoService.getCursoInscritoByCursoAndAlumno(cursoId,alumnoId);
+      this.cursoInscrito =  result['cursoInscrito'];
+      await this.cursoInscritoService.update(cursoInscritoData,this.cursoInscrito.id);
       window.location.reload();
     } catch (error) {
       let status = error.status;
       if(status === 422 || status === 400)
-        this.pruebaError = true;
+      this.inscritoError = true;
       if(status === 500)
         this.serverError = true;
+      console.log(error);
     }    
   }
 
-  async deletePrueba(id){
+  async deleteInscrito(cursoId,alumnoId){
     try {
-      await this.pruebaService.deletePrueba(id);
+      let result = await this.cursoInscritoService.getCursoInscritoByCursoAndAlumno(cursoId,alumnoId);
+      this.cursoInscrito =  result['cursoInscrito'];
+      await this.cursoInscritoService.deleteCursoInscrito(this.cursoInscrito.id);
       window.location.reload();
     } catch (error) {
       let status = error.status;
       if(status === 500)
         this.serverError = true;
+      console.log(error);
     }    
   }
 

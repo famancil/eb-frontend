@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Profesor } from '../../models/profesor/profesor.model';
 import { ProfesorService } from '../../services/profesor/profesor.service';4
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { faEdit, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTimes } from '@fortawesome/free-solid-svg-icons';
 import * as $ from 'jquery';
 import 'datatables.net';
-import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 
 @Component({
@@ -16,6 +16,7 @@ import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms'
 export class ProfesorHomeComponent implements OnInit {
 
   profesores: Profesor[];
+  faPlus = faPlus;
   faEdit = faEdit;
   faTimes = faTimes;
   modalReference: any;
@@ -24,7 +25,15 @@ export class ProfesorHomeComponent implements OnInit {
   correoError = false;
   serverError = false;
 
-  profesorForm = new FormGroup({
+  profesorNewForm = new FormGroup({
+    nombre: new FormControl('',[
+      Validators.required]),
+      correo: new FormControl('',[
+      Validators.required,
+      Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$")])
+    });  
+
+  profesorEditForm = new FormGroup({
     nombre: new FormControl('',[
       Validators.required]),
       correo: new FormControl('',[
@@ -36,37 +45,78 @@ export class ProfesorHomeComponent implements OnInit {
     private modalService: NgbModal) {}
 
   ngOnInit(): void {
-    this.getFirstProfesores();
+    this.getProfesores();
   }
 
-  async getFirstProfesores(){
-    let result = await this.profesorService.getFirstProfesores();
+  async getProfesores(){
+    let result = await this.profesorService.getProfesores();
     this.profesores = result['profesores'];
     console.log(this.profesores);
     
     $(function(){
       $('#tabla_profesor').DataTable({
-        responsive: true
+        responsive: true,
+        language: {
+          processing: "Procesando...",
+          search: "Buscar:",
+          lengthMenu: "Mostrar _MENU_ registros",
+          info: "Mostrando desde _START_ al _END_ de _TOTAL_ registros",
+          infoEmpty: "Mostrando ningún registros.",
+          infoFiltered: "(filtrado _MAX_ registros total)",
+          infoPostFix: "",
+          loadingRecords: "Cargando registros...",
+          zeroRecords: "No se encontraron registros",
+          emptyTable: "No hay datos disponibles en la tabla",
+          paginate: {
+            first: "Primero",
+            previous: "Anterior",
+            next: "Siguiente",
+            last: "Último"
+          },
+        }
       });
     });
   }
 
   open(content,id) {
-    this.profesor = this.profesores.find(element => element.id === id);
+    if(id>0) this.profesor = this.profesores.find(element => element.id === id);
     this.modalReference = this.modalService.open(content);
   }
 
   close(){
+    this.correoError = false;
     this.serverError = false;
     this.modalReference.close();
   }
 
-  get getNombre(){
-    return this.profesorForm.get('nombre')
-    }
+  get getNewNombre(){
+    return this.profesorNewForm.get('nombre')
+  }
   
-  get getCorreo(){
-  return this.profesorForm.get('correo')
+  get getNewCorreo(){
+    return this.profesorNewForm.get('correo')
+  }
+
+  get getEditNombre(){
+    return this.profesorEditForm.get('nombre')
+  }
+  
+  get getEditCorreo(){
+    return this.profesorEditForm.get('correo')
+  }
+
+  async save(profesorData){
+    try {
+      await this.profesorService.save(profesorData);
+      window.location.reload();
+    } catch (error) {
+      let status = error.status;
+      if(status === 422 || status === 400)
+        this.correoError = true;
+      if(status === 500)
+        this.serverError = true;
+      console.log(error);
+    }    
   }
 
   async update(profesorData,id){

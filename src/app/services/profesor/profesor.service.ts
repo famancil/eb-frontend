@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Profesor } from 'src/app/models/profesor/profesor.model';
 
@@ -12,8 +12,12 @@ export class ProfesorService {
 
   constructor(private http: HttpClient) { }
 
-  getFirstProfesores(){
+  getProfesores(){
     return this.http.get<Profesor[]>(this.apiUrl+'profesores').toPromise();    
+  }
+
+  save(profesor: Profesor){
+    return this.http.post(this.apiUrl+'profesores/',profesor).toPromise(); 
   }
 
   update(profesor: Profesor, id: number){

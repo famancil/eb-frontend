@@ -1,1 +1,170 @@
-<p>alumno-home works!</p>
+<div class="container col-sm-8">
+    
+    <h1>Listado de Alumnos</h1>
+    <div class="d-flex justify-content-center">
+
+      <button type="button" class="btn btn-success" (click)="open(crear,0)">
+        <fa-icon [icon]="faPlus"></fa-icon>
+         Agregar Alumno
+      </button>
+
+    </div>
+    
+    <table id="tabla_alumnos" class="row-border hover">
+    <thead>
+      <tr>
+        <th class="w-5">#</th>
+        <th class="w-50">Nombre</th>
+        <th class="w-40">Correo</th>
+        <th class="w-5">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let alumno of alumnos;">
+        <th scope="row">{{alumno.id}}</th>
+        <td>{{alumno.nombre}}</td>
+        <td>{{alumno.correo}}</td>
+        <td> 
+          <div class="d-flex justify-content-center btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+              <button type="button" class="btn btn-info" (click)="open(editar,alumno.id)">
+                <fa-icon [icon]="faEdit"></fa-icon>
+                 Editar
+              </button>
+            </div>
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+              <button type="button" class="btn btn-danger" (click)="open(borrar,alumno.id)">
+                <fa-icon [icon]="faTimes"></fa-icon>
+                Borrar
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<ng-template #crear let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">CREAR ALUMNO</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="correoError" (close)="correoError = false">
+        <strong>Error!</strong> Correo ingresado existe y/o tiene un formato invalido, favor revisar.
+      </ngb-alert>
+    </p>
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <form [formGroup]="alumnoNewForm" (ngSubmit)="save(alumnoNewForm.value)">
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label for="nombre">Nombre:</label>
+          <input [class.is-invalid] = "getNewNombre.invalid && getNewNombre.touched"
+            class="form-control" formControlName="nombre"/>
+            
+          <div *ngIf="(getNewNombre.invalid && getNewNombre.touched) || getNewNombre.dirty">
+            <small *ngIf="getNewNombre.errors?.required" class="text-danger">Nombre es requerido</small>
+          </div>
+        </div>
+        <div class="form-group col-md-12">
+          <label for="correo">Correo:</label>
+          <input [class.is-invalid] = "getNewCorreo.invalid && getNewCorreo.touched"
+            class="form-control" formControlName="correo"/>
+          <small>(Ejemplo: usuario@correo.com)</small>
+
+          <div *ngIf="(getNewCorreo.invalid && getNewCorreo.touched) || getNewCorreo.dirty">
+            <small *ngIf="getNewCorreo.errors?.pattern" class="text-danger">Favor ingrese un correo valido</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-outline-primary"  [disabled]="(alumnoNewForm.invalid)">Guardar</button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #editar let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">EDITAR ALUMNO</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="correoError" (close)="correoError = false">
+        <strong>Error!</strong> Correo ingresado existe y/o tiene un formato invalido, favor revisar.
+      </ngb-alert>
+    </p>
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <form [formGroup]="alumnoEditForm" (ngSubmit)="update(alumnoEditForm.value,alumno.id)">
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label for="nombre">Nombre:</label>
+          <input [class.is-invalid] = "getEditNombre.invalid && getEditNombre.touched"
+            class="form-control" formControlName="nombre" [ngModel]="alumno.nombre"/>
+            
+          <div *ngIf="(getEditNombre.invalid && getEditNombre.touched) || getEditNombre.dirty">
+            <small *ngIf="getEditNombre.errors?.required" class="text-danger">Nombre es requerido</small>
+          </div>
+        </div>
+        <div class="form-group col-md-12">
+          <label for="correo">Correo:</label>
+          <input [class.is-invalid] = "getEditCorreo.invalid && getEditCorreo.touched"
+            class="form-control" formControlName="correo" [ngModel]="alumno.correo"/>
+          <small>(Ejemplo: usuario@correo.com)</small>
+
+          <div *ngIf="(getEditCorreo.invalid && getEditCorreo.touched) || getEditCorreo.dirty">
+            <small *ngIf="getEditCorreo.errors?.pattern" class="text-danger">Favor ingrese un correo valido</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-outline-primary"  [disabled]="(alumnoEditForm.invalid)">Guardar</button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #borrar let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">ESTAS SEGURO?</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <p>Esta acción no podra deshacerse.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-primary" (click)="deleteAlumno(alumno.id)">Aceptar</button>
+  </div>
+</ng-template>

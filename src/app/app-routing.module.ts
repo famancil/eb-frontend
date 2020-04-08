@@ -5,6 +5,7 @@ import { HomeComponent } from './home/home.component';
 import { ProfesorHomeComponent } from './profesor/profesor-home/profesor-home.component';
 import { AlumnoHomeComponent } from './alumno/alumno-home/alumno-home.component';
 import { CursoHomeComponent } from './curso/curso-home/curso-home.component';
+import { CursoInscritoHomeComponent } from './curso-inscrito/curso-inscrito-home/curso-inscrito-home.component';
 import { PruebaHomeComponent } from './prueba/prueba-home/prueba-home.component';
 
 const routes: Routes = [
@@ -12,6 +13,7 @@ const routes: Routes = [
   {path: 'profesores', component: ProfesorHomeComponent},
   {path: 'alumnos', component: AlumnoHomeComponent},
   {path: 'cursos', component: CursoHomeComponent},
+  {path: 'cursoInscritos/:cursoId', component: CursoInscritoHomeComponent},
   {path: 'pruebas', component: PruebaHomeComponent},
 ];
 

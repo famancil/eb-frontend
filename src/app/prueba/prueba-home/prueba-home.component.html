@@ -1,1 +1,204 @@
-<p>prueba-home works!</p>
+<div class="container col-sm-10">
+    
+    <h1>Listado de Pruebas</h1>
+    <div class="d-flex justify-content-center">
+
+      <button type="button" class="btn btn-success" (click)="open(crear,0)">
+        <fa-icon [icon]="faPlus"></fa-icon>
+         Agregar Prueba
+      </button>
+
+    </div>
+    
+    <table id="tabla_pruebas" class="row-border hover">
+    <thead>
+      <tr>
+        <th class="w-5">#</th>
+        <th class="w-40">Curso</th>
+        <th class="w-40">Alumno</th>
+        <th class="w-10">Nombre</th>
+        <th class="w-10">Nota Alumno</th>
+        <th class="w-30">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let prueba of pruebas; let i = index">
+        <th scope="row">{{i+1}}</th>
+        <td>{{prueba['curso'].nombre}}</td>
+        <td>{{prueba['alumno'].nombre}}</td>
+        <td>{{prueba.nombre}}</td>
+        <td>{{prueba.nota}}</td>
+        <td> 
+          <div class="d-flex justify-content-center btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+              <button type="button" class="btn btn-info" (click)="open(editar,prueba.id)">
+                <fa-icon [icon]="faEdit"></fa-icon>
+                 Editar
+              </button>
+            </div>
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+              <button type="button" class="btn btn-danger" (click)="open(borrar,prueba.id)">
+                <fa-icon [icon]="faTimes"></fa-icon>
+                Borrar
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<ng-template #crear let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">NUEVA PRUEBA</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="pruebaError" (close)="pruebaError = false">
+        <strong>Error!</strong> Prueba ya existe, favor revisar datos.
+      </ngb-alert>
+    </p>
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <form [formGroup]="pruebaNewForm" (ngSubmit)="save(pruebaNewForm.value)">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="cursoId">Curso:</label>
+            <select class="form-control" name="cursoId" formControlName="cursoId">
+            <option [ngValue]="null" disabled>Elige un Curso</option>
+            <option [ngValue]="curso.id" *ngFor="let curso of cursos">{{curso.nombre}}</option>
+            </select>
+        </div>
+        <div class="form-group col-md-6">
+            <label for="alumnoId">Alumno:</label>
+            <select class="form-control" name="alumnoId" formControlName="alumnoId">
+             <option [ngValue]="null" disabled>Elige un Alumno</option>
+             <option [ngValue]="alumno.id" *ngFor="let alumno of alumnos">{{alumno.nombre}}</option>
+            </select>
+        </div>
+        <div class="form-group col-md-12">
+            <label for="nombre">Nombre:</label>
+            <input [class.is-invalid] = "getNewNombre.invalid && getNewNombre.touched"
+                class="form-control" formControlName="nombre"/>
+                
+            <div *ngIf="(getNewNombre.invalid && getNewNombre.touched) || getNewNombre.dirty">
+                <small *ngIf="getNewNombre.errors?.required" class="text-danger">Nombre es requerido</small>
+            </div>
+        </div>
+        <div class="form-group col-md-12">
+            <label for="nota">Nota:</label>
+            <input [class.is-invalid] = "getNewNota.invalid && getNewNota.touched"
+            class="form-control" formControlName="nota"/>
+            
+            <div *ngIf="(getNewNota.invalid && getNewNota.touched) || getNewNota.dirty">
+                <small *ngIf="getNewNota.errors?.required" class="text-danger">Nota es requerido</small>
+                <small *ngIf="getNewNota.errors?.pattern" class="text-danger">Nota debe ser númerico y/o puso más de 3 digitos.</small>
+            </div>
+        </div>
+
+      </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-outline-primary"  [disabled]="(pruebaNewForm.invalid)">Guardar</button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #editar let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">EDITAR PRUEBA</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="pruebaError" (close)="pruebaError = false">
+        <strong>Error!</strong> Inscrito ya existe en el curso, favor ingresar otro.
+      </ngb-alert>
+    </p>
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+  
+    <form [formGroup]="pruebaEditForm" (ngSubmit)="update(pruebaEditForm.value,prueba.id)">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="cursoId">Curso:</label>
+                <select class="form-control" name="cursoId" formControlName="cursoId" [ngModel]="prueba['curso'].id">
+                <option [ngValue]="null" disabled>Elige un Curso</option>
+                <option [ngValue]="curso.id" *ngFor="let curso of cursos">{{curso.nombre}}</option>
+                </select>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="alumnoId">Alumno:</label>
+                <select class="form-control" name="alumnoId" formControlName="alumnoId" [ngModel]="prueba['alumno'].id">
+                 <option [ngValue]="null" disabled>Elige un Alumno</option>
+                 <option [ngValue]="alumno.id" *ngFor="let alumno of alumnos">{{alumno.nombre}}</option>
+                </select>
+            </div>
+            <div class="form-group col-md-12">
+                <label for="nombre">Nombre:</label>
+                <input [class.is-invalid] = "getEditNombre.invalid && getEditNombre.touched"
+                    class="form-control" formControlName="nombre"  [ngModel]="prueba.nombre"/>
+                    
+                <div *ngIf="(getEditNombre.invalid && getEditNombre.touched) || getEditNombre.dirty">
+                    <small *ngIf="getEditNombre.errors?.required" class="text-danger">Nombre es requerido</small>
+                </div>
+            </div>
+            <div class="form-group col-md-12">
+                <label for="nota">Nota:</label>
+                <input [class.is-invalid] = "getEditNota.invalid && getEditNota.touched"
+                class="form-control" formControlName="nota" [ngModel]="prueba.nota"/>
+                
+                <div *ngIf="(getEditNota.invalid && getEditNota.touched) || getEditNota.dirty">
+                    <small *ngIf="getEditNota.errors?.required" class="text-danger">Nota es requerido</small>
+                    <small *ngIf="getEditNota.errors?.pattern" class="text-danger">Nota debe ser númerico y/o puso más de 3 digitos.</small>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-outline-primary"  [disabled]="(pruebaEditForm.invalid)">Guardar</button>
+        </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #borrar let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">ESTAS SEGURO?</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <p>Esta acción no podra deshacerse.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-primary" (click)="deletePrueba(prueba.id)">Aceptar</button>
+  </div>
+</ng-template>

@@ -1,0 +1,164 @@
+<div class="container col-sm-10">
+    
+    <h1>Listado de Inscritos</h1>
+    <div class="d-flex justify-content-center">
+
+      <button type="button" class="btn btn-success" (click)="open(crear,0,0)">
+        <fa-icon [icon]="faPlus"></fa-icon>
+         Inscribir Alumno a un Curso
+      </button>
+
+    </div>
+    
+    <table id="tabla_inscritos" class="row-border hover">
+    <thead>
+      <tr>
+        <th class="w-5">#</th>
+        <th class="w-40">Curso</th>
+        <th class="w-40">Nombre Alumno</th>
+        <th class="w-10">Semestre</th>
+        <th class="w-30">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let alumno of inscritos; let i = index">
+        <th scope="row">{{i+1}}</th>
+        <td>{{curso.nombre}}</td>
+        <td>{{alumno.nombre}}</td>
+        <td>{{curso.semestre}}</td>
+        <td> 
+          <div class="d-flex justify-content-center btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+              <button type="button" class="btn btn-info" (click)="open(editar,curso.id,alumno.id)">
+                <fa-icon [icon]="faEdit"></fa-icon>
+                 Editar
+              </button>
+            </div>
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+              <button type="button" class="btn btn-danger" (click)="open(borrar,curso.id,alumno.id)">
+                <fa-icon [icon]="faTimes"></fa-icon>
+                Borrar
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<ng-template #crear let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">INSCRIBIR ALUMNO</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="inscritoError" (close)="inscritoError = false">
+        <strong>Error!</strong> Inscrito ya existe en el curso, favor ingresar otro.
+      </ngb-alert>
+    </p>
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <form [formGroup]="cursoInscritoNewForm" (ngSubmit)="save(cursoInscritoNewForm.value)">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="cursoId">Curso:</label>
+            <select class="form-control" name="cursoId" formControlName="cursoId" [ngModel]="cursoInscrito.cursoId">
+            <option [ngValue]="null" disabled>Elige un Curso</option>
+            <option [ngValue]="curso.id" *ngFor="let curso of cursos">{{curso.nombre}}</option>
+            </select>
+        </div>
+        <div class="form-group col-md-6">
+            <label for="alumnoId">Alumno:</label>
+            <select class="form-control" name="alumnoId" formControlName="alumnoId">
+             <option [ngValue]="null" disabled>Elige un Alumno</option>
+             <option [ngValue]="alumno.id" *ngFor="let alumno of alumnos">{{alumno.nombre}}</option>
+            </select>
+        </div>
+
+      </div>
+      
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-outline-primary"  [disabled]="(cursoInscritoNewForm.invalid)">Guardar</button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #editar let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">EDITAR INSCRITO</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="inscritoError" (close)="inscritoError = false">
+        <strong>Error!</strong> Inscrito ya existe en el curso, favor ingresar otro.
+      </ngb-alert>
+    </p>
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+  
+    <form [formGroup]="cursoInscritoEditForm" (ngSubmit)="update(cursoInscritoEditForm.value,cursoInscrito.cursoId,cursoInscrito.alumnoId)">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="cursoId">Curso:</label>
+            <select class="form-control" name="cursoId" formControlName="cursoId" [ngModel]="cursoInscrito.cursoId">
+            <option [ngValue]="null" disabled>Elige un Curso</option>
+            <option [ngValue]="curso.id" *ngFor="let curso of cursos">{{curso.nombre}}</option>
+            </select>
+        </div>
+        <div class="form-group col-md-6">
+            <label for="alumnoId">Alumno:</label>
+            <select class="form-control" name="alumnoId" formControlName="alumnoId" [ngModel]="cursoInscrito.alumnoId">
+             <option [ngValue]="null" disabled>Elige un Alumno</option>
+             <option [ngValue]="alumno.id" *ngFor="let alumno of alumnos">{{alumno.nombre}}</option>
+            </select>
+        </div>
+
+        </div>
+        
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-outline-primary"  [disabled]="(cursoInscritoEditForm.invalid)">Guardar</button>
+        </div>
+    </form>
+  </div>
+</ng-template>
+
+<ng-template #borrar let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">ESTAS SEGURO?</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <p>
+      <ngb-alert type="danger" *ngIf="serverError" (close)="serverError = false">
+        <strong>Error!</strong> Hubo un problema, favor intentar mas tarde.
+      </ngb-alert>
+    </p>
+
+    <p>Esta acción no podra deshacerse.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-primary" (click)="deleteInscrito(cursoInscrito.cursoId,cursoInscrito.alumnoId)">Aceptar</button>
+  </div>
+</ng-template>
