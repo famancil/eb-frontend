@@ -4,6 +4,7 @@ Este proyecto fue generado con [Angular CLI](https://github.com/angular/angular-
 
 ## Para correr el servidor (Development server)
 
+Primero es necesario instalar las librerias que seran utilizadas, para eso se ejecuta `npm install` (en el mismo directorio donde este el archivo `package.json`).
 Ejecutar el comando `ng serve` para correr el servidor en entorno desarrollo. Navegar en `http://localhost:4200/` y seguir instrucciones en la pagina Home.
 
 ## Componentes
