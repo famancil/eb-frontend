@@ -1,27 +1,26 @@
-# EbFrontend
+# Eb  Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.0.
+Este proyecto fue generado con [Angular CLI](https://github.com/angular/angular-cli) version 9.1.0.
 
-## Development server
+## Para correr el servidor (Development server)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Ejecutar el comando `ng serve` para correr el servidor en entorno desarrollo. Navegar en `http://localhost:4200/` y seguir instrucciones en la pagina Home.
 
-## Code scaffolding
+## Componentes
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+1. ProfesorHome: Muestra el listado de profesores, con las opciones para agregar, editar y/o eliminar registros.
+Se accede mediante la ruta `/profesores`.
 
-## Build
+2. AlumnoHome: Muestra el listado de alumnos, con las opciones para agregar, editar y/o eliminar registros.
+Se accede mediante la ruta `/alumnos`
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+3. CursoHome: Muestra el listado de cursos, con las opciones para agregar, editar y/o eliminar registros. Para ver los inscritos, hacer click en el boton `Ver Inscritos` para acceder a la vista de inscritos al curso. 
+Se accede mediante la ruta `/cursos`
 
-## Running unit tests
+4. CursoInscritosHome: Muestra el listado de alumnos inscritos en un curso dado, con las opciones para agregar, editar y/o eliminar registros. Se accede mediante la ruta `/cursoInscritos/:cursoId`
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+5. PruebaHome: Muestra el listado de pruebas, con las opciones para agregar, editar y/o eliminar registros.
+Se accede mediante la ruta `/pruebas`
 
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+6. Home: Muestra la pagina de Bienvenida, con las instrucciones para acceder a cada listado.
+Se accede mediante la ruta `/`
